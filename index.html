@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Калькулятор</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <style>
+        /* custom button press effect */
+        .btn-press:active {
+            transform: scale(0.92);
+        }
+
+        /* custom scrollbar for display */
+        .display-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+        .display-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        .display-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        /* smooth transitions */
+        .calc-btn {
+            transition: all 0.1s ease;
+        }
+
+        /* glow effect on equals */
+        .equals-glow {
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+        }
+        .equals-glow:hover {
+            box-shadow: 0 0 35px rgba(99, 102, 241, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-4">
+
+        <!-- Calculator Card -->
+        <div class="w-full max-w-[360px] rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl shadow-indigo-500/10 p-5">
+
+            <!-- Display -->
+            <div class="mb-5 bg-black/30 rounded-2xl p-4 border border-white/10 min-h-[100px] flex flex-col justify-end items-end overflow-hidden">
+
+                <!-- expression (small, above) -->
+                <div class="text-white/40 text-sm font-mono w-full text-right truncate display-scroll overflow-x-auto pb-1" id="expression">
+                    &nbsp;
+                </div>
+
+                <!-- current value (large) -->
+                <div class="text-white text-5xl font-light w-full text-right truncate display-scroll overflow-x-auto" id="display">
+                    0
+                </div>
+            </div>
+
+            <!-- Buttons Grid -->
+            <div class="grid grid-cols-4 gap-3">
+
+                <!-- Row 1: AC, ±, %, ÷ -->
+                <button class="calc-btn btn-press col-span-1 bg-white/10 hover:bg-white/20 text-white/80 text-xl font-medium rounded-2xl py-4 transition" data-action="clear">AC</button>
+                <button class="calc-btn btn-press col-span-1 bg-white/10 hover:bg-white/20 text-white/80 text-xl font-medium rounded-2xl py-4 transition" data-action="sign">±</button>
+                <button class="calc-btn btn-press col-span-1 bg-white/10 hover:bg-white/20 text-white/80 text-xl font-medium rounded-2xl py-4 transition" data-action="percent">%</button>
+                <button class="calc-btn btn-press col-span-1 bg-indigo-500/80 hover:bg-indigo-400 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="operator" data-value="÷">÷</button>
+
+                <!-- Row 2: 7, 8, 9, × -->
+                <button class="calc-btn btn-press col-span-1 bg-white/5 hover:bg-white/15 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="digit" data-value="7">7</button>
+                <button class="calc-btn btn-press col-span-1 bg-white/5 hover:bg-white/15 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="digit" data-value="8">8</button>
+                <button class="calc-btn btn-press col-span-1 bg-white/5 hover:bg-white/15 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="digit" data-value="9">9</button>
+                <button class="calc-btn btn-press col-span-1 bg-indigo-500/80 hover:bg-indigo-400 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="operator" data-value="×">×</button>
+
+                <!-- Row 3: 4, 5, 6, − -->
+                <button class="calc-btn btn-press col-span-1 bg-white/5 hover:bg-white/15 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="digit" data-value="4">4</button>
+                <button class="calc-btn btn-press col-span-1 bg-white/5 hover:bg-white/15 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="digit" data-value="5">5</button>
+                <button class="calc-btn btn-press col-span-1 bg-white/5 hover:bg-white/15 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="digit" data-value="6">6</button>
+                <button class="calc-btn btn-press col-span-1 bg-indigo-500/80 hover:bg-indigo-400 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="operator" data-value="−">−</button>
+
+                <!-- Row 4: 1, 2, 3, + -->
+                <button class="calc-btn btn-press col-span-1 bg-white/5 hover:bg-white/15 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="digit" data-value="1">1</button>
+                <button class="calc-btn btn-press col-span-1 bg-white/5 hover:bg-white/15 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="digit" data-value="2">2</button>
+                <button class="calc-btn btn-press col-span-1 bg-white/5 hover:bg-white/15 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="digit" data-value="3">3</button>
+                <button class="calc-btn btn-press col-span-1 bg-indigo-500/80 hover:bg-indigo-400 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="operator" data-value="+">+</button>
+
+                <!-- Row 5: 0 (span 2), ., = -->
+                <button class="calc-btn btn-press col-span-2 bg-white/5 hover:bg-white/15 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="digit" data-value="0">0</button>
+                <button class="calc-btn btn-press col-span-1 bg-white/5 hover:bg-white/15 text-white text-xl font-medium rounded-2xl py-4 transition" data-action="decimal">.</button>
+                <button class="calc-btn btn-press col-span-1 bg-indigo-400 hover:bg-indigo-300 text-white text-2xl font-medium rounded-2xl py-4 transition equals-glow" data-action="equals">=</button>
+
+            </div>
+
+            <!-- tiny footer -->
+            <div class="mt-4 text-center text-white/20 text-xs font-mono tracking-wider select-none">
+                ⌨️ · tailwind · calc
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---------- State ----------
+        const state = {
+            currentValue: '0',
+            previousValue: '',
+            operation: null,
+            shouldResetDisplay: false,
+            expression: '',
+            justEvaluated: false,
+        };
+
+        // ---------- DOM refs ----------
+        const displayEl = document.getElementById('display');
+        const expressionEl = document.getElementById('expression');
+
+        // ---------- Helpers ----------
+        function updateDisplay() {
+            let val = state.currentValue;
+            // if it's a long number, keep it readable
+            if (val.length > 14) {
+                // try to parse as float and use toFixed or exponential
+                const num = parseFloat(val);
+                if (!isNaN(num)) {
+                    if (Number.isInteger(num) && val.length > 14) {
+                        // very large integer → exponential
+                        val = num.toExponential(6);
+                    } else if (val.length > 14) {
+                        val = num.toPrecision(10);
+                    }
+                }
+            }
+            displayEl.textContent = val;
+            expressionEl.textContent = state.expression || '\u00A0';
+        }
+
+        function formatNumber(num) {
+            if (num === undefined || num === null || isNaN(num)) return '0';
+            const str = String(num);
+            // if it's already a string with decimal, keep it
+            return str;
+        }
+
+        // ---------- Core Logic ----------
+        function inputDigit(digit) {
+            if (state.justEvaluated) {
+                state.currentValue = '0';
+                state.expression = '';
+                state.justEvaluated = false;
+                state.previousValue = '';
+                state.operation = null;
+            }
+            if (state.shouldResetDisplay) {
+                state.currentValue = digit;
+                state.shouldResetDisplay = false;
+            } else {
+                if (state.currentValue === '0' && digit !== '.') {
+                    state.currentValue = digit;
+                } else {
+                    // prevent too many digits
+                    if (state.currentValue.replace('-', '').replace('.', '').length >= 15) return;
+                    state.currentValue += digit;
+                }
+            }
+            updateDisplay();
+        }
+
+        function inputDecimal() {
+            if (state.justEvaluated) {
+                state.currentValue = '0.';
+                state.expression = '';
+                state.justEvaluated = false;
+                state.previousValue = '';
+                state.operation = null;
+                state.shouldResetDisplay = false;
+                updateDisplay();
+                return;
+            }
+            if (state.shouldResetDisplay) {
+                state.currentValue = '0.';
+                state.shouldResetDisplay = false;
+                updateDisplay();
+                return;
+            }
+            if (!state.currentValue.includes('.')) {
+                state.currentValue += '.';
+            }
+            updateDisplay();
+        }
+
+        function handleOperator(op) {
+            const current = parseFloat(state.currentValue);
+            if (isNaN(current)) return;
+
+            if (state.operation && !state.shouldResetDisplay) {
+                // if there's already an operation, compute it first
+                const result = compute(state.previousValue, current, state.operation);
+                state.currentValue = formatNumber(result);
+                state.previousValue = state.currentValue;
+            } else {
+                state.previousValue = state.currentValue;
+            }
+
+            state.operation = op;
+            state.shouldResetDisplay = true;
+            state.justEvaluated = false;
+
+            // build expression for display
+            const opSymbol = op;
+            state.expression = `${state.previousValue} ${opSymbol} `;
+            updateDisplay();
+        }
+
+        function compute(a, b, op) {
+            const numA = parseFloat(a);
+            const numB = parseFloat(b);
+            if (isNaN(numA) || isNaN(numB)) return b;
+
+            let result;
+            switch (op) {
+                case '+':
+                    result = numA + numB;
+                    break;
+                case '−':
+                    result = numA - numB;
+                    break;
+                case '×':
+                    result = numA * numB;
+                    break;
+                case '÷':
+                    if (numB === 0) {
+                        return 'Ошибка';
+                    }
+                    result = numA / numB;
+                    break;
+                default:
+                    return b;
+            }
+            // avoid floating point noise
+            if (typeof result === 'number' && !Number.isInteger(result)) {
+                result = parseFloat(result.toPrecision(12));
+            }
+            return result;
+        }
+
+        function handleEquals() {
+            const current = parseFloat(state.currentValue);
+            if (isNaN(current)) return;
+
+            let result;
+            if (state.operation && state.previousValue !== '') {
+                const prev = parseFloat(state.previousValue);
+                result = compute(prev, current, state.operation);
+            } else {
+                result = current;
+            }
+
+            // build expression string
+            const opSymbol = state.operation || '';
+            const exprStr = state.previousValue ? `${state.previousValue} ${opSymbol} ${state.currentValue} =` :
+                `${state.currentValue} =`;
+
+            state.expression = exprStr;
+            state.currentValue = formatNumber(result);
+            state.previousValue = '';
+            state.operation = null;
+            state.shouldResetDisplay = true;
+            state.justEvaluated = true;
+
+            updateDisplay();
+        }
+
+        function handleClear() {
+            state.currentValue = '0';
+            state.previousValue = '';
+            state.operation = null;
+            state.shouldResetDisplay = false;
+            state.expression = '';
+            state.justEvaluated = false;
+            updateDisplay();
+        }
+
+        function handleSign() {
+            if (state.currentValue === '0') return;
+            if (state.currentValue.startsWith('-')) {
+                state.currentValue = state.currentValue.slice(1);
+            } else {
+                state.currentValue = '-' + state.currentValue;
+            }
+            updateDisplay();
+        }
+
+        function handlePercent() {
+            const num = parseFloat(state.currentValue);
+            if (isNaN(num)) return;
+            const result = num / 100;
+            state.currentValue = formatNumber(result);
+            // show expression
+            state.expression = `${num}%`;
+            updateDisplay();
+            // after percent, we can keep typing
+            state.shouldResetDisplay = true;
+            state.justEvaluated = false;
+        }
+
+        // ---------- Keyboard support ----------
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+
+            if (key >= '0' && key <= '9') {
+                e.preventDefault();
+                inputDigit(key);
+                return;
+            }
+
+            switch (key) {
+                case '.':
+                    e.preventDefault();
+                    inputDecimal();
+                    break;
+                case '+':
+                    e.preventDefault();
+                    handleOperator('+');
+                    break;
+                case '-':
+                    e.preventDefault();
+                    handleOperator('−');
+                    break;
+                case '*':
+                    e.preventDefault();
+                    handleOperator('×');
+                    break;
+                case '/':
+                    e.preventDefault();
+                    handleOperator('÷');
+                    break;
+                case 'Enter':
+                case '=':
+                    e.preventDefault();
+                    handleEquals();
+                    break;
+                case 'Escape':
+                case 'c':
+                case 'C':
+                    e.preventDefault();
+                    handleClear();
+                    break;
+                case '%':
+                    e.preventDefault();
+                    handlePercent();
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        // ---------- Event listeners for buttons ----------
+        document.querySelectorAll('[data-action]').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                const action = btn.dataset.action;
+                const value = btn.dataset.value;
+
+                switch (action) {
+                    case 'digit':
+                        inputDigit(value);
+                        break;
+                    case 'decimal':
+                        inputDecimal();
+                        break;
+                    case 'operator':
+                        handleOperator(value);
+                        break;
+                    case 'equals':
+                        handleEquals();
+                        break;
+                    case 'clear':
+                        handleClear();
+                        break;
+                    case 'sign':
+                        handleSign();
+                        break;
+                    case 'percent':
+                        handlePercent();
+                        break;
+                    default:
+                        break;
+                }
+            });
+        });
+
+        // ---------- Init ----------
+        updateDisplay();
+    </script>
+
+</body>
+</html>
